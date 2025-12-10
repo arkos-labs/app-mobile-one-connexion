@@ -1,0 +1,19 @@
+{
+  "name": "One Connexion Chauffeur",
+  "short_name": "OC Driver",
+  "description": "Application chauffeur One Connexion - Gérez vos courses de livraison",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3F4F6",
+  "theme_color": "#1E3A8A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "fr"
+}
