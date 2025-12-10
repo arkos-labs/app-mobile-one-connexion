@@ -27,6 +27,7 @@ import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 import { OrderProvider } from "./context/OrderContext";
 import { IncomingOrderModal } from "./components/IncomingOrderModal";
+import { MainLayout } from "./components/MainLayout";
 
 const queryClient = new QueryClient();
 
@@ -75,96 +76,31 @@ const App = () => (
               } />
 
               {/* Protected routes */}
-              <Route path="/" element={
+              {/* Protected routes */}
+              <Route element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <MainLayout />
                 </ProtectedRoute>
-              } />
-              <Route path="/orders" element={
-                <ProtectedRoute>
-                  <Orders />
-                </ProtectedRoute>
-              } />
-              <Route path="/order/:id" element={
-                <ProtectedRoute>
-                  <OrderDetail />
-                </ProtectedRoute>
-              } />
-              <Route path="/order/:id/proof" element={
-                <ProtectedRoute>
-                  <ProofOfDelivery />
-                </ProtectedRoute>
-              } />
-              <Route path="/vehicles" element={
-                <ProtectedRoute>
-                  <Vehicles />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile/edit" element={
-                <ProtectedRoute>
-                  <EditProfile />
-                </ProtectedRoute>
-              } />
-              <Route path="/notifications/settings" element={
-                <ProtectedRoute>
-                  <NotificationSettings />
-                </ProtectedRoute>
-              } />
-              <Route path="/security" element={
-                <ProtectedRoute>
-                  <SecuritySettings />
-                </ProtectedRoute>
-              } />
-              <Route path="/documents" element={
-                <ProtectedRoute>
-                  <Documents />
-                </ProtectedRoute>
-              } />
-              <Route path="/documents/upload/:documentId" element={
-                <ProtectedRoute>
-                  <DocumentUpload />
-                </ProtectedRoute>
-              } />
-              <Route path="/support" element={
-                <ProtectedRoute>
-                  <Support />
-                </ProtectedRoute>
-              } />
-              <Route path="/garage" element={
-                <ProtectedRoute>
-                  <Garage />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin-hub" element={
-                <ProtectedRoute>
-                  <AdminHub />
-                </ProtectedRoute>
-              } />
-              <Route path="/security/change-password" element={
-                <ProtectedRoute>
-                  <ChangePassword />
-                </ProtectedRoute>
-              } />
-              <Route path="/vehicles/:vehicleId/edit" element={
-                <ProtectedRoute>
-                  <EditVehicle />
-                </ProtectedRoute>
-              } />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              } />
-              <Route path="/chat" element={
-                <ProtectedRoute>
-                  <Chat />
-                </ProtectedRoute>
-              } />
+              }>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/order/:id" element={<OrderDetail />} />
+                <Route path="/order/:id/proof" element={<ProofOfDelivery />} />
+                <Route path="/vehicles" element={<Vehicles />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/edit" element={<EditProfile />} />
+                <Route path="/notifications/settings" element={<NotificationSettings />} />
+                <Route path="/security" element={<SecuritySettings />} />
+                <Route path="/documents" element={<Documents />} />
+                <Route path="/documents/upload/:documentId" element={<DocumentUpload />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/garage" element={<Garage />} />
+                <Route path="/admin-hub" element={<AdminHub />} />
+                <Route path="/security/change-password" element={<ChangePassword />} />
+                <Route path="/vehicles/:vehicleId/edit" element={<EditVehicle />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/chat" element={<Chat />} />
+              </Route>
 
               {/* Catch all */}
               <Route path="*" element={<NotFound />} />

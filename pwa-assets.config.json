@@ -1,5 +1,6 @@
 {
-    "scripts": {
-        "generate-pwa-icons": "pwa-assets-generator --preset minimal public/favicon.ico"
-    }
+    "preset": "minimal",
+    "images": [
+        "public/favicon.ico"
+    ]
 }
