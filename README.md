@@ -1,121 +1,106 @@
-# Welcome to your Lovable project
+# 🚗 One Connexion Driver (PWA + Mobile)
 
-## Project info
+Application mobile pour chauffeurs, développée avec une approche **Mobile-First**, transformable en PWA (Progressive Web App) et en application native (Android/iOS) via Capacitor.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🛠 Stack Technique
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## 📱 PWA Mobile-First + Capacitor
-
-This project is now configured as a **Progressive Web App (PWA)** with **Capacitor** support for native mobile deployment!
-
-### 🚀 Quick Start
-
-```bash
-# Development
-npm run dev                    # Start dev server with PWA
-
-# Build and Test
-npm run build                  # Production build
-npm run preview                # Test the build
-
-# Mobile (Capacitor)
-npm run cap:sync              # Sync with Capacitor
-npm run cap:android           # Open in Android Studio
-npm run cap:run:android       # Build + Run on Android
-```
-
-### 📚 Complete Documentation
-
-**Start here:** [INDEX-PWA.md](./INDEX-PWA.md) - Navigation guide for all PWA documentation
-
-**Quick Links:**
-- 📋 [README-PWA.md](./README-PWA.md) - Complete overview
-- 🚀 [QUICK-START.md](./QUICK-START.md) - Quick start guide
-- ❓ [REPONSE-SERVICE-WORKER.md](./REPONSE-SERVICE-WORKER.md) - Service Worker explanation
-- 💡 [EXEMPLES-PWA.md](./EXEMPLES-PWA.md) - Code examples
-- 📚 [PWA-SETUP.md](./PWA-SETUP.md) - Technical documentation
-- 📁 [STRUCTURE.md](./STRUCTURE.md) - Project structure
-
-### ✨ PWA Features
-
-- ✅ **Installable** - Works like a native app
-- ✅ **Offline-first** - Works without internet
-- ✅ **Auto-update** - Automatic updates
-- ✅ **Mobile-optimized** - Perfect for mobile devices
-- ✅ **Capacitor-ready** - Deploy to Android/iOS
-
-### ⚠️ Next Steps
-
-1. **Generate PWA icons** (required) - See [QUICK-START.md](./QUICK-START.md)
-2. **Test locally** - `npm run dev`
-3. **Test on mobile** - `npm run cap:run:android`
+- **Frontend :** React 18 + TypeScript + Vite
+- **UI/UX :** Tailwind CSS + Shadcn/ui + Lucide Icons
+- **Mobile Native :** Capacitor 6 (Android & iOS)
+- **PWA :** Vite Plugin PWA (Service Workers, Manifest, Offline-first)
+- **Backend/Data :** Supabase (Auth & Database) - *En cours d'intégration*
+- **Maps :** LocationIQ API (Affichage Cartes & Itinéraires)
 
 ---
 
-## How can I deploy this project?
+## 🚀 Démarrage Rapide
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### 1. Prérequis
+- Node.js (v18+)
+- Android Studio (pour le dev mobile Android)
+- Compte Supabase (pour la connexion future)
 
-## Can I connect a custom domain to my Lovable project?
+### 2. Installation
+```bash
+# Installer les dépendances
+npm install
+```
 
-Yes, you can!
+### 3. Lancer en Développement (Web)
+Pour tester l'interface dans le navigateur avec le Hot-Reload :
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```bash
+npm run dev
+# Accessible sur http://localhost:5173
+# Pour tester sur mobile via Wi-Fi : http://VOTRE_IP_LOCALE:5173
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📱 Développement Mobile (Capacitor)
+
+### Synchronisation
+À chaque fois que vous modifiez le code `src/` ou installez un plugin, il faut compiler et synchroniser :
+
+```bash
+npm run cap:sync
+# Cela fait : npm run build + npx cap sync
+```
+
+### Lancer sur Android
+```bash
+# Ouvrir le projet dans Android Studio
+npx cap open android
+
+# Ou lancer directement sur un émulateur/device connecté
+npm run cap:run:android
+```
+
+## 🌐 Gestion PWA (Progressive Web App)
+L'application est configurée pour être installable (Add to Home Screen) et fonctionner hors-ligne.
+
+### Génération des Icônes
+Si vous changez le logo (`public/favicon.ico`), régénérez les assets mobiles :
+
+```bash
+npm run generate-pwa-assets
+```
+
+### Test du Service Worker
+Le Service Worker (cache hors-ligne) ne fonctionne qu'en version "Build" (pas en `npm run dev`).
+
+```bash
+npm run build
+npm run preview
+```
+
+## 📂 Structure du Projet
+```
+/
+├── android/              # Projet natif Android (Généré par Capacitor)
+├── dist/                 # Build de production (le code compilé)
+├── public/               # Assets statiques (Sons, Logos, Robots.txt)
+│   └── sounds/           # Sons de notification (ex: notification.mp3)
+├── src/
+│   ├── components/       # Composants UI réutilisables (Boutons, Modales...)
+│   ├── context/          # Contextes React (OrderContext, etc.)
+│   ├── hooks/            # Hooks personnalisés (usePWA, useMobile...)
+│   ├── pages/            # Écrans principaux (Dashboard, Login, Profil...)
+│   ├── store/            # Gestion d'état global (Zustand : authStore, etc.)
+│   ├── types/            # Définitions TypeScript partagées
+│   ├── App.tsx           # Routeur principal & Layouts
+│   └── main.tsx          # Point d'entrée React
+├── capacitor.config.ts   # Configuration Mobile Native
+├── pwa-assets.config.json # Config génération icônes
+└── vite.config.ts        # Config Build & PWA
+```
+
+## 🛡️ Règles de Développement (Architecture)
+1. **Mobile First :** Toujours penser "Écran tactile" et "Petit écran" en priorité.
+2. **Zéro Scroll Dashboard :** La page d'accueil est fixe (`100dvh`), pas de défilement.
+3. **Composants Atomiques :** Utiliser les composants `ui/` (Shadcn) pour la cohérence.
+4. **État Global :** Utiliser Zustand (`src/store/`) pour les données partagées (User, GPS).
+
+## 📝 Suivi du Projet
+Voir le fichier `TODO.md` à la racine pour l'état d'avancement des tâches et la roadmap.
+
+---
+*Généré par l'Architecte Technique Senior - Arkos Labs*
