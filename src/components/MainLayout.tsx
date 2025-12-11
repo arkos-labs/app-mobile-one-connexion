@@ -25,7 +25,7 @@ export function MainLayout({
 
             <main className={cn(
                 "w-full max-w-lg mx-auto",
-                showBottomNav ? "pb-24" : "",
+                (showBottomNav && !isHomePage) ? "pb-24" : "",
                 // Le Dashboard prend tout l'espace restant mais ne dépasse jamais
                 isHomePage ? "flex-1 h-full overflow-hidden relative" : "flex-1"
             )}>

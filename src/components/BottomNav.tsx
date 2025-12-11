@@ -28,7 +28,7 @@ export function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 safe-bottom z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-slate-900 safe-bottom z-50">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {navItems.map((item) => {
           const isActive = isItemActive(item);
@@ -41,13 +41,13 @@ export function BottomNav() {
               className={cn(
                 "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors",
                 isActive
-                  ? "text-yellow-400"
-                  : "text-slate-500 hover:text-slate-400"
+                  ? "text-white"
+                  : "text-slate-400 hover:text-slate-300"
               )}
             >
               <div className={cn(
                 "relative p-2 rounded-xl transition-all duration-200",
-                isActive && "bg-yellow-400/10"
+                isActive && "bg-white/10"
               )}>
                 <Icon className="w-6 h-6" />
               </div>

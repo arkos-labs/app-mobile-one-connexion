@@ -16,3 +16,6 @@
 - [x] Création bouton test sonore (Déjà intégré dans la Modale)
 - [x] Création MainLayout (Scroll Global)
 - [x] Refactor Dashboard & App
+- [x] Refactor Dashboard (Professional High-Level)
+- [x] Fix bouton GO coupé & Padding Layout
+- [x] Ajout bouton simulation commande (Debug)
