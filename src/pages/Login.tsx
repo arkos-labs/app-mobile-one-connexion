@@ -1,71 +1,114 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Mail, Lock, Eye, EyeOff, Truck, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
+import { supabase } from '@/lib/supabase';
 import type { Driver } from '@/types';
 
-// Demo driver data (in real app, this comes from Supabase)
-const DEMO_DRIVER: Driver = {
-  id: 'demo-driver-001',
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-  first_name: 'Jean',
-  last_name: 'Dupont',
-  email: 'driver@oneconnexion.fr',
-  phone: '+33 6 12 34 56 78',
-  vehicle_type: 'scooter',
-  vehicle_plate: 'AB-123-CD',
-  status: 'offline',
-};
+const loginSchema = z.object({
+  email: z.string().email('Email invalide'),
+  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setDriver } = useAuthStore();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { setDriver, setLoading } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-    if (!email || !password) {
-      toast({
-        title: 'Erreur',
-        description: 'Veuillez remplir tous les champs',
-        variant: 'destructive',
+  const onSubmit = async (data: LoginFormValues) => {
+    setIsSubmitting(true);
+    setLoading(true);
+
+    try {
+      // 1. Authenticate with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
       });
-      return;
-    }
 
-    setIsLoading(true);
+      if (authError) {
+        throw new Error(authError.message === 'Invalid login credentials'
+          ? 'Identifiants incorrects'
+          : authError.message);
+      }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+      if (!authData.user) {
+        throw new Error('Erreur lors de l\'authentification');
+      }
 
-    // Demo login (in real app, this calls Supabase)
-    if (email === 'driver@oneconnexion.fr' && password === 'demo123') {
-      setDriver(DEMO_DRIVER);
+      // 2. Fetch driver profile
+      const { data: driverData, error: driverError } = await supabase
+        .from('drivers')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (driverError || !driverData) {
+        // Fallback for demo/testing if table doesn't exist or empty, 
+        // BUT strictly speaking we should fail. 
+        // However, to avoid blocking the user if they haven't set up the DB yet,
+        // we might want to be careful. 
+        // The prompt asks to "Mappe les données Supabase vers l'objet Driver".
+        // If the fetch fails, it means the user is not a driver or DB is not set up.
+        console.error('Driver fetch error:', driverError);
+        throw new Error('Compte chauffeur introuvable ou erreur de base de données');
+      }
+
+      // 3. Map to Driver object
+      const driver: Driver = {
+        id: driverData.id,
+        created_at: driverData.created_at,
+        updated_at: driverData.updated_at,
+        first_name: driverData.first_name,
+        last_name: driverData.last_name,
+        email: driverData.email,
+        phone: driverData.phone,
+        vehicle_type: driverData.vehicle_type,
+        vehicle_plate: driverData.vehicle_plate,
+        status: driverData.status || 'offline',
+      };
+
+      // 4. Update store
+      setDriver(driver);
+
       toast({
         title: 'Connexion réussie',
-        description: `Bienvenue, ${DEMO_DRIVER.first_name} !`,
+        description: `Bienvenue, ${driver.first_name} !`,
       });
+
       navigate('/');
-    } else {
+
+    } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: 'Échec de connexion',
-        description: 'Email ou mot de passe incorrect',
+        description: error.message || 'Une erreur est survenue',
         variant: 'destructive',
       });
+      setDriver(null); // Ensure state is clean
+    } finally {
+      setIsSubmitting(false);
+      setLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -96,7 +139,7 @@ export default function Login() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Email */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
@@ -105,14 +148,16 @@ export default function Login() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
+                    {...form.register('email')}
                     type="email"
                     placeholder="votre@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-12"
                     autoComplete="email"
                   />
                 </div>
+                {form.formState.errors.email && (
+                  <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+                )}
               </div>
 
               {/* Password */}
@@ -123,10 +168,9 @@ export default function Login() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
+                    {...form.register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10 h-12"
                     autoComplete="current-password"
                   />
@@ -138,6 +182,9 @@ export default function Login() {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
+                )}
               </div>
 
               {/* Forgot password link */}
@@ -155,11 +202,11 @@ export default function Login() {
                 type="submit"
                 size="lg"
                 className="w-full"
-                disabled={isLoading}
+                disabled={isSubmitting}
               >
-                {isLoading ? (
+                {isSubmitting ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
                     Connexion...
                   </>
                 ) : (
@@ -167,19 +214,6 @@ export default function Login() {
                 )}
               </Button>
             </form>
-
-            {/* Demo credentials */}
-            <div className="mt-6 p-4 bg-muted rounded-lg">
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                Identifiants de démo :
-              </p>
-              <p className="text-sm text-foreground font-mono">
-                Email: driver@oneconnexion.fr
-              </p>
-              <p className="text-sm text-foreground font-mono">
-                Password: demo123
-              </p>
-            </div>
           </CardContent>
         </Card>
 

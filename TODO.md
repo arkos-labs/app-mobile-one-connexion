@@ -10,7 +10,8 @@
 
 ---
 ## 🚀 PHASE 2 : DÉVELOPPEMENT FONCTIONNEL
-- [ ] Vérification du lancement (npm run dev)
+- [x] Vérification du lancement (npm run dev)
+- [x] Implémentation Logique Login (Supabase + Store)
 - [x] Choix de la première fonctionnalité (Alerte sonore)
 - [x] Ajout alerte sonore commande (notification.mp3)
 - [x] Création bouton test sonore (Déjà intégré dans la Modale)
