@@ -7,6 +7,7 @@ import { useOrderStore } from '@/store/orderStore';
 import { useLocationStore } from '@/store/locationStore';
 import type { DriverStatus } from '@/types';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -75,23 +76,42 @@ export default function Dashboard() {
       return;
     }
     setIsLoading(true);
-    await new Promise(r => setTimeout(r, 800));
+
     const newStatus: DriverStatus = isOnline ? 'offline' : 'available';
-    if (newStatus === 'available') {
-      const activate = (lat: number, lng: number) => {
-        setLocation(lat, lng);
-        setTracking(true);
-        setDriver({ ...driver, status: 'available' });
-        toast({ title: '🟢 EN LIGNE', description: 'Recherche de courses...' });
-      };
-      if ('geolocation' in navigator) navigator.geolocation.getCurrentPosition((pos) => activate(pos.coords.latitude, pos.coords.longitude), () => activate(48.8566, 2.3522));
-      else activate(48.8566, 2.3522);
-    } else {
-      setTracking(false);
-      setDriver({ ...driver, status: 'offline' });
-      toast({ title: '🔴 HORS LIGNE' });
+
+    try {
+      // Update Supabase
+      const { error } = await supabase
+        .from('drivers')
+        .update({ status: newStatus })
+        .eq('id', driver.id);
+
+      if (error) throw error;
+
+      // Update Local State
+      if (newStatus === 'available') {
+        const activate = (lat: number, lng: number) => {
+          setLocation(lat, lng);
+          setTracking(true);
+          setDriver({ ...driver, status: 'available' });
+          toast({ title: '🟢 EN LIGNE', description: 'Recherche de courses...' });
+
+          // Update location in DB as well
+          supabase.from('drivers').update({ current_lat: lat, current_lng: lng }).eq('id', driver.id).then();
+        };
+        if ('geolocation' in navigator) navigator.geolocation.getCurrentPosition((pos) => activate(pos.coords.latitude, pos.coords.longitude), () => activate(48.8566, 2.3522));
+        else activate(48.8566, 2.3522);
+      } else {
+        setTracking(false);
+        setDriver({ ...driver, status: 'offline' });
+        toast({ title: '🔴 HORS LIGNE' });
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast({ title: "Erreur", description: "Impossible de mettre à jour le statut", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const openGPS = () => {

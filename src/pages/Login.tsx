@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Mail, Lock, Eye, EyeOff, Truck, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Truck, Loader2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import type { Driver } from '@/types';
 
 const loginSchema = z.object({
-  email: z.string().email('Email invalide'),
+  username: z.string().min(1, 'Identifiant requis'),
   password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
 });
 
@@ -29,7 +29,7 @@ export default function Login() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   });
@@ -40,14 +40,17 @@ export default function Login() {
 
     try {
       // 1. Authenticate with Supabase Auth
+      // Construct the fake email from username
+      const email = `${data.username}@driver.oneconnexion`;
+
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: data.email,
+        email: email,
         password: data.password,
       });
 
       if (authError) {
         throw new Error(authError.message === 'Invalid login credentials'
-          ? 'Identifiants incorrects'
+          ? 'Identifiant ou mot de passe incorrect'
           : authError.message);
       }
 
@@ -63,12 +66,6 @@ export default function Login() {
         .single();
 
       if (driverError || !driverData) {
-        // Fallback for demo/testing if table doesn't exist or empty, 
-        // BUT strictly speaking we should fail. 
-        // However, to avoid blocking the user if they haven't set up the DB yet,
-        // we might want to be careful. 
-        // The prompt asks to "Mappe les données Supabase vers l'objet Driver".
-        // If the fetch fails, it means the user is not a driver or DB is not set up.
         console.error('Driver fetch error:', driverError);
         throw new Error('Compte chauffeur introuvable ou erreur de base de données');
       }
@@ -140,23 +137,24 @@ export default function Login() {
 
           <CardContent>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Email */}
+              {/* Username */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
-                  Email
+                  Identifiant
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
-                    {...form.register('email')}
-                    type="email"
-                    placeholder="votre@email.com"
+                    {...form.register('username')}
+                    type="text"
+                    placeholder="ex: chauffeur1"
                     className="pl-10 h-12"
-                    autoComplete="email"
+                    autoComplete="username"
+                    autoCapitalize="none"
                   />
                 </div>
-                {form.formState.errors.email && (
-                  <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+                {form.formState.errors.username && (
+                  <p className="text-sm text-destructive">{form.formState.errors.username.message}</p>
                 )}
               </div>
 
